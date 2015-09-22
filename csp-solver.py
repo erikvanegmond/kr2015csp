@@ -11,8 +11,11 @@ def solve_sudokus(fname):
 
 class Solver(object):
     """docstring for Solver"""
-    def __init__(self, arg):
-        self.arg = arg
+
+    variables = {}
+
+    def __init__(self):
+        print "init solver"
 
     def preprocess(self):
         return None
@@ -40,4 +43,44 @@ class Solver(object):
                     newSolver = split()
                     newSolver.solve()
 
-solve_sudokus('1000-sudokus.txt')
+
+    def addVariable(self, name, domain):
+        if name in self.variables:
+            print "overriding domain of %s"%(name)
+
+        self.variables[name]=domain
+
+        # self.variables.append(Variable(name, domain))
+
+
+    def addConstraint(self, variables, relation):
+        for var in variables:
+            if var not in self.variables:
+                raise Exeption( "ERROR unknown variable!" )
+
+
+
+    def __str__(self):
+        return str(self.variables)
+
+
+class Constraint(object):
+    """docstring for Constraint"""
+
+    variables = [] #list of Variable
+    relation = 1# = all different
+
+    def __init__(self, variables, relation):
+        self.variables = variables
+        self.relation = relation
+
+
+# solve_sudokus('1000-sudokus.txt')
+
+solver = Solver()
+solver.addVariable("a", [1,2,4])
+solver.addVariable("a", [1,2,4,5])
+solver.addVariable("b", [2,3])
+solver.addConstraint(["a","b"], 1)
+solver.addConstraint(["a","c"], 1)
+print solver
