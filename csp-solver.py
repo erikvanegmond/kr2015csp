@@ -37,28 +37,40 @@ class Solver(object):
                                 var.difference_update(unaryConstraint)
                                 if preVar != var:
                                     change = True
-
         return None
 
     def atomic(self):
+        for var, domain in self.variables.iteritems():
+            if len(domain) > 1:
+                return False
         return True
 
     def split(self):
-        return None
+        return self
+
+    def solved(self):
+        if self.atomic():
+            return True
+        return False
 
     def solve(self):
         cont = True
-        solved = False
+        solved = self.solved()
         while cont and not solved:
             self.preprocess()
             self.constraint_propagation()
+            solved = self.solved()
 
             if not solved:
                 if self.atomic():
                     cont = False
                 else:
                     newSolver = self.split()
-                    newSolver.solve()
+                    print "did split, now exit :(\ncurrent state:\n",self
+                    return
+                    # newSolver.solve()
+            solved = self.solved()
+        print "solution:\n",self
 
 
 
@@ -112,11 +124,10 @@ class Constraint(object):
 # solve_sudokus('1000-sudokus.txt')
 
 solver = Solver()
-solver.addVariable("a", set([1,2,4]))
+solver.addVariable("a", set([1,2,3]))
 solver.addVariable("b", set([2]))
 solver.addVariable("c", set([1,2]))
 solver.addConstraint(["b","a","c"], 1)
 print solver
 solver.solve()
-print solver
 
