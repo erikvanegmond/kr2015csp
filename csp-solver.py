@@ -1,14 +1,3 @@
-import argparse
-
-print "Hello, this will be a CSP solver!"
-
-def solve_sudokus(fname):
-     with open(fname) as f:
-        for line in f.readlines():
-            print line
-
-
-
 class Solver(object):
     """docstring for Solver"""
 
@@ -93,23 +82,6 @@ class Solver(object):
     def __str__(self):
         return str(self.variables)#+"\n"+str(self.constraints)
 
-class Domain(object):
-
-    domain = set()
-    """docstring for Domain"""
-    def __init__(self, domain):
-        self.domain = set(domain)
-
-    def difference(self, inputDomain):
-        self.domain.difference(inputDomain.domain)
-
-    def __len__(self):
-        return len(self.domain)
-
-    def __repr__(self):
-        return str(self.domain)
-
-
 class Constraint(object):
     """docstring for Constraint"""
 
@@ -119,15 +91,3 @@ class Constraint(object):
     def __init__(self, variables, relation):
         self.variables = variables
         self.relation = relation
-
-
-# solve_sudokus('1000-sudokus.txt')
-
-solver = Solver()
-solver.addVariable("a", set([1,2,3]))
-solver.addVariable("b", set([2]))
-solver.addVariable("c", set([1,2]))
-solver.addConstraint(["b","a","c"], 1)
-print solver
-solver.solve()
-
