@@ -2,11 +2,6 @@ import argparse
 
 print "Hello, this will be a CSP solver!"
 
-def solve_sudokus(fname):
-     with open(fname) as f:
-        for line in f.readlines():
-            print line
-
 
 
 class Solver(object):
@@ -15,8 +10,14 @@ class Solver(object):
     variables = {}
     constraints = []
 
-    def __init__(self):
+    def __init__(self, variables={}, constraints=[]):
+        self.variables.update(variables)
+        self.constraints += constraints
         print "init solver"
+
+    def __str__(self):
+        return str(self.variables)#+"\n"+str(self.constraints)
+
 
     def preprocess(self):
         return None
@@ -81,17 +82,26 @@ class Solver(object):
         self.variables[name]=domain
         # self.variables.append(Variable(name, domain))
 
+    def addVariables(self, newvariables):
+        # analyze & add vars one at a time via addVariable method
+        if isinstance(newvariables, dict):
+            for v, d in newvariables.items():
+                self.addVariable(self, v, d)
+        else:  # i.e., newvariables is a list or set or something
+            for v in newvariables:
+                self.addVariable(*v)
 
+                
     def addConstraint(self, variables, relation):
         for var in variables:
             if var not in self.variables:
                 raise
         self.constraints.append((variables, relation))
 
+    def addConstraints(self, newconstraints):
+        for c in newconstraints:
+            self.addConstraint(*c)
 
-
-    def __str__(self):
-        return str(self.variables)#+"\n"+str(self.constraints)
 
 class Domain(object):
 
@@ -100,15 +110,30 @@ class Domain(object):
     def __init__(self, domain):
         self.domain = set(domain)
 
-    def difference(self, inputDomain):
-        self.domain.difference(inputDomain.domain)
-
     def __len__(self):
         return len(self.domain)
 
     def __repr__(self):
         return str(self.domain)
 
+
+    def difference(self, inputDomain):
+        self.domain.difference(inputDomain.domain)
+
+    def restrict(self, restrictedDomain):
+        # ensures restrictedDomain is just a set... 
+        if isinstance(restrictedDomain, Domain):    # ..not a Domain object
+            restrictedDomain = restrictedDomain.domain
+        elif not isinstance(restrictedDomain, set):  # ..convert to set if needed
+            restrictedDomain = set(restrictedDomain)
+            
+        if restrictedDomain.issubset(self.domain):
+            self.domain = restrictedDomain
+        else:
+            #print "cannot restrict"
+            raise ValueError("Domain restriction is not subset of original Domain")
+
+        
 
 class Constraint(object):
     """docstring for Constraint"""
@@ -120,14 +145,7 @@ class Constraint(object):
         self.variables = variables
         self.relation = relation
 
+    def __repr__(self):
+        return "Constraint("+repr(self.variables)+", "+str(self.relation)+")"
 
-# solve_sudokus('1000-sudokus.txt')
-
-solver = Solver()
-solver.addVariable("a", set([1,2,3]))
-solver.addVariable("b", set([2]))
-solver.addVariable("c", set([1,2]))
-solver.addConstraint(["b","a","c"], 1)
-print solver
-solver.solve()
 
