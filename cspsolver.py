@@ -1,3 +1,5 @@
+import random
+
 class Solver(object):
     """docstring for Solver"""
 
@@ -7,11 +9,9 @@ class Solver(object):
     def __init__(self, variables={}, constraints=[]):
         self.variables.update(variables)
         self.constraints += constraints
-        print "init solver"
 
     def __str__(self):
         return str(self.variables)#+"\n"+str(self.constraints)
-
 
     def preprocess(self):
         return None
@@ -40,8 +40,26 @@ class Solver(object):
                 return False
         return True
 
+    def pick_variable(self):
+        while True:
+            var = random.choice(self.variables.keys())
+            if len(self.variables[var])>1:
+                return var
+
+    def pick_value(self, var):
+        return random.choice(list(self.variables[var]))
+
     def split(self):
-        return self
+        var = self.pick_variable()
+        value = self.pick_value(var)
+
+        vars1 = self.variables[var] - set([value])
+        vars2 = set([value])
+        problem1 = self.variables.copy()
+        problem1[var] = vars1
+        problem2 = self.variables.copy()
+        problem2[var] = vars2
+        return problem1, problem2
 
     def solved(self):
         if self.atomic():
@@ -60,18 +78,16 @@ class Solver(object):
                 if self.atomic():
                     cont = False
                 else:
-                    newSolver = self.split()
-                    print "did split, now exit :(\ncurrent state:\n",self
+                    newSolver1, newSolver2 = self.split()
+                    # print "did split, now exit :(\ncurrent state:\n",self
                     return
                     # newSolver.solve()
             solved = self.solved()
         print "solution:\n",self
 
-
-
     def addVariable(self, name, domain):
-        if name in self.variables:
-            print "overriding domain of %s"%(name)
+        # if name in self.variables:
+        #     print "overriding domain of %s to %s"%(name, domain)
 
         self.variables[name]=domain
         # self.variables.append(Variable(name, domain))
@@ -80,40 +96,40 @@ class Solver(object):
         # analyze & add vars one at a time via addVariable method
         if isinstance(newvariables, dict):
             for v, d in newvariables.items():
-                self.addVariable(self, v, d)
+                self.addVariable(v, d)
         else:  # i.e., newvariables is a list or set or something
             for v in newvariables:
                 self.addVariable(*v)
 
-                
+
     def addConstraint(self, variables, relation):
         for var in variables:
             if var not in self.variables:
                 raise
+
+        if (variables, relation) in self.constraints:
+            return
+
         self.constraints.append((variables, relation))
 
     def addConstraints(self, newconstraints):
         for c in newconstraints:
-            self.addConstraint(*c)
-
-
-    def difference(self, inputDomain):
-        self.domain.difference(inputDomain.domain)
+            self.addConstraint(c.variables, c.relation)
 
     def restrict(self, restrictedDomain):
-        # ensures restrictedDomain is just a set... 
+        # ensures restrictedDomain is just a set...
         if isinstance(restrictedDomain, Domain):    # ..not a Domain object
             restrictedDomain = restrictedDomain.domain
         elif not isinstance(restrictedDomain, set):  # ..convert to set if needed
             restrictedDomain = set(restrictedDomain)
-            
+
         if restrictedDomain.issubset(self.domain):
             self.domain = restrictedDomain
         else:
             #print "cannot restrict"
             raise ValueError("Domain restriction is not subset of original Domain")
 
-        
+
 
 class Constraint(object):
     """docstring for Constraint"""
