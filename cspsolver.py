@@ -1,4 +1,5 @@
 import random
+from pprint import *
 
 class Solver(object):
     """docstring for Solver"""
@@ -40,13 +41,13 @@ class Solver(object):
                 return False
         return True
 
-    def pick_variable(self):
+    def pick_variable(self, heuristic=0):
         while True:
             var = random.choice(self.variables.keys())
             if len(self.variables[var])>1:
                 return var
 
-    def pick_value(self, var):
+    def pick_value(self, var, heuristic=0):
         return random.choice(list(self.variables[var]))
 
     def split(self):
@@ -59,7 +60,7 @@ class Solver(object):
         problem1[var] = vars1
         problem2 = self.variables.copy()
         problem2[var] = vars2
-        return problem1, problem2
+        return Solver(problem1, self.constraints), Solver(problem2, self.constraints)
 
     def solved(self):
         if self.atomic():
@@ -79,11 +80,17 @@ class Solver(object):
                     cont = False
                 else:
                     newSolver1, newSolver2 = self.split()
+                    newSolver1.solve()
+                    if newSolver1.solved():
+                        break
+                    newSolver2.solve()
+                    if newSolver2.solved():
+                        break
                     # print "did split, now exit :(\ncurrent state:\n",self
                     return
                     # newSolver.solve()
             solved = self.solved()
-        print "solution:\n",self
+        print "solved:\n"#,self
 
     def addVariable(self, name, domain):
         # if name in self.variables:

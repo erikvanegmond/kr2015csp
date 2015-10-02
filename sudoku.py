@@ -63,9 +63,11 @@ def solve_sudokus(fname):
     with open(fname) as f:
         c = 0
         for line in f.readlines():
+            print c
             c+=1
             ss = initialize_sudoku_solver(line.strip(), constraints)
             ss.solve()
+
             # break
 
 
