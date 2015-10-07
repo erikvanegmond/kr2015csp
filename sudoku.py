@@ -59,16 +59,30 @@ def initialize_sudoku_solver( boardstring, constraints ):
     return ss
 
 def solve_sudokus(fname):
-    constraints = generate_sudoku_constraints()
+    # constraints = generate_sudoku_constraints()
     with open(fname) as f:
         c = 0
         for line in f.readlines():
             print c
             c+=1
-            ss = initialize_sudoku_solver(line.strip(), constraints)
+            ss = initialize_sudoku_solver(line.strip(), generate_sudoku_constraints())
             ss.solve()
 
             # break
 
 
+
+def solution_to_oneline(s):
+    sl = list(s.items())
+    sl.sort()
+    return ''.join([str(i[1].pop()) for i in sl])
+    
+
+       
+
+
+            
+
 solve_sudokus('1000-sudokus.txt')
+
+
