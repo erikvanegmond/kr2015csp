@@ -1,6 +1,7 @@
 from cspsolver import *
 import pprint as pp
 import sys
+import argparse
 
 digits1to9 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 digits1to9str = [str(n) for n in digits1to9]
@@ -61,22 +62,31 @@ def initialize_sudoku_solver( boardstring, constraints ):
 
 
 
-def solve_sudoku( boardstring, return_solver=False):
+def solve_sudoku( boardstring, return_solver=False, print_solution=False):
     ss = initialize_sudoku_solver(boardstring, generate_sudoku_constraints())
-    ss.solve()
+    (message, result) = ss.solve()
+    print message, result
+
+    if print_solution and message == 'solved':
+        line = solution_to_oneline(result.variables)
+        n=9
+        grid = [line[i:i+n] for i in range(0, len(line), n)]
+        for l in grid:
+            print l
+
     if return_solver:
         return (boardstring, ss)
 
 
 
-def solve_sudokus_from_file(fname, return_solvers=False):
+def solve_sudokus_from_file(fname, return_solvers=False, print_solutions = False):
     with open(fname) as f:
         c = 0
         solvers = list()
         for line in f.readlines():
             print c
             c+=1
-            result = solve_sudoku(line.strip(), return_solvers)
+            result = solve_sudoku(line.strip(), return_solver = return_solvers, print_solution=print_solutions)
             if return_solvers:
                 solvers.append(result)
         if return_solvers:
@@ -89,19 +99,25 @@ def solution_to_oneline(s):
     sl = list(s.items())
     sl.sort()
     return ''.join([str(i[1].pop()) for i in sl])
-    
-
-       
-
-
 
 ##=======================================
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='sudoku.py', description="solve sudokus using csp")
+
+    parser.add_argument('--input', type=str, default = '1000-sudokus.txt',
+            help='A text file containing sudokus in oneline format')
+    parser.add_argument('--retSolvers', action="store_true", default = False,
+            help='Retrun the solvers')
+    parser.add_argument('--printSolutions', action="store_true", default=False,
+            help="Print the solution of each sudoku")
+
+    args = parser.parse_args()
+    argdict = vars(args) # converts namespace with all arguments to a dictionary
+
+    solve_sudokus_from_file(argdict['input'], return_solvers = argdict['retSolvers'], print_solutions = argdict['printSolutions'])
 
 
-# solve_sudokus_from_file('1000-sudokus.txt')
 
-
-    
 
 
