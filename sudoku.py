@@ -107,6 +107,23 @@ def solution_to_oneline(s):
     sl.sort()
     return ''.join([str(i[1].pop()) for i in sl])
 
+
+def print_sudoku(boardstring):
+    rows = [list(boardstring[i:i+9]) for i in range(0,81,9)]
+    lnum = 1
+    for r in rows:
+    	if lnum % 4 == 0:
+	    print u'  \u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500'
+	    lnum += 1
+	print ' ', r[0], r[1], r[2], u'\u2502', \
+	           r[3], r[4], r[5], u'\u2502', \
+		   r[6], r[7], r[8]
+	lnum += 1
+
+
+
+
+
 ##=======================================
 
 if __name__ == '__main__':
