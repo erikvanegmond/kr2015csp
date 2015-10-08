@@ -4,10 +4,12 @@ from pprint import *
 class Solver(object):
     """docstring for Solver"""
 
-    variables = {}
-    constraints = []
+    # variables = {}
+    # constraints = []
 
     def __init__(self, variables={}, constraints=[]):
+        self.variables = {}
+        self.constraints = []
         self.variables.update(variables)
         self.constraints += constraints
 
@@ -15,9 +17,11 @@ class Solver(object):
         return str(self.variables)#+"\n"+str(self.constraints)
 
     def preprocess(self):
+        # print "preprocessing..."
         return None
 
     def constraint_propagation(self):
+        # print "propagating..."
         change = True
 
         while change:
@@ -25,23 +29,24 @@ class Solver(object):
             for constraint in self.constraints:
                 variables = [self.variables[x] for x in constraint[0]]
                 if constraint[1] == 1: #all different
-                    unaryConstraints = [x for x in variables if len(x)==1]
-                    for var in variables:
-                        for unaryConstraint in unaryConstraints:
-                            if var != unaryConstraint:
+                    for i,var in enumerate(variables):
+                        for j, otherVar in enumerate(variables):
+                            if i!=j and len(otherVar)==1:
                                 preVar = var.copy()
-                                var.difference_update(unaryConstraint)
+                                var.difference_update(otherVar)
                                 if preVar != var:
                                     change = True
         return None
 
     def atomic(self):
+        # print "atomic?"
         for var, domain in self.variables.iteritems():
             if len(domain) > 1:
                 return False
         return True
 
     def pick_variable(self, heuristic=0):
+        # print "picking var"
         while True:
             var = random.choice(self.variables.keys())
             if len(self.variables[var])>1:
@@ -60,37 +65,60 @@ class Solver(object):
         problem1[var] = vars1
         problem2 = self.variables.copy()
         problem2[var] = vars2
-        return Solver(problem1, self.constraints), Solver(problem2, self.constraints)
+        solver1 = Solver(problem1, self.constraints)
+        solver2 = Solver(problem2, self.constraints)
+        return solver1, solver2
 
     def solved(self):
-        if self.atomic():
+        if not self.unsolvable() and self.atomic():
             return True
         return False
 
+    def unsolvable(self):
+        for var, domain in self.variables.iteritems():
+            if len(domain) == 0:
+                return True
+        return False
+
     def solve(self):
+        # print "solving:",self
         cont = True
         solved = self.solved()
+        # print "solved",solved
         while cont and not solved:
+            # print "looping..."
             self.preprocess()
             self.constraint_propagation()
+            # print "solved2,",solved
             solved = self.solved()
+            # print "solved3,",solved
 
             if not solved:
                 if self.atomic():
                     cont = False
                 else:
+                    # print "presplit:",self
                     newSolver1, newSolver2 = self.split()
+                    # print "problem1:", newSolver1
+                    # print "problem2:", newSolver2
                     newSolver1.solve()
+                    if newSolver1.unsolvable():
+                        return
                     if newSolver1.solved():
+                        self = newSolver1
                         break
                     newSolver2.solve()
+                    if newSolver2.unsolvable():
+                        return
+
                     if newSolver2.solved():
+                        self = newSolver2
                         break
                     # print "did split, now exit :(\ncurrent state:\n",self
                     return
                     # newSolver.solve()
             solved = self.solved()
-        print "solved:\n"#,self
+        print "solved:\n",self
 
     def addVariable(self, name, domain):
         # if name in self.variables:
