@@ -151,14 +151,13 @@ class Solver(object):
         for c in newconstraints:
             self.addConstraint(c.variables, c.relation)
 
-    def restrict(self, restrictedDomain):
-        # ensures restrictedDomain is just a set...
-        if isinstance(restrictedDomain, Domain):    # ..not a Domain object
-            restrictedDomain = restrictedDomain.domain
-        elif not isinstance(restrictedDomain, set):  # ..convert to set if needed
+    def restrict(self, var, restrictedDomain):
+        # restricts domain of variable var to restrictedDomain;
+        # var must be in self.variables and its domain must be
+        # superset of restrictedDomain
+        if not isinstance(restrictedDomain, set):  # convert to set if needed
             restrictedDomain = set(restrictedDomain)
-
-        if restrictedDomain.issubset(self.domain):
+        if restrictedDomain.issubset(self.variables[var]):
             self.domain = restrictedDomain
         else:
             #print "cannot restrict"
