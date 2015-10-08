@@ -1,6 +1,7 @@
 import random
 from pprint import *
 from collections import Counter
+from copy import deepcopy
 import sys
 import time
 
@@ -18,6 +19,7 @@ class Solver(object):
         self.variables.update(variables)
         self.constraints += constraints
         self.instance += 1
+        self.variables_initial = None
 
     def __str__(self):
         return str(self.variables)#+"\n"+str(self.constraints)
@@ -140,7 +142,9 @@ class Solver(object):
                 return True
         return False
 
-    def solve(self):
+    def solve(self): #remember_initial_state
+        # freeze a copy of self.variables right before solving
+        self.variables_initial = deepcopy(self.variables)
         # print "solving:",self
         # sys.stdout.write('.'),
         cont = True
@@ -240,6 +244,26 @@ class Solver(object):
             newVariables[var] = set(list(self.variables[var]))
         return newVariables
 
+
+    def clone_from_initial(self):
+        # returns brand new solver with same initial variable-setup as self
+        if self.variables_initial is None:
+            raise
+        return Solver( deepcopy(self.variables_initial), deepcopy(self.constraints) )
+
+    def reset_to_initial(self):
+        # similar but resets state of preexisting solver
+        if self.variables_initial is None:
+            raise
+        self.variables = deepcopy(self.variables_initial)
+        # (and self.constraints stay where they are)
+        self.variables_initial = None
+        # self.instance?
+    
+
+
+
+        
 class Constraint(object):
     """docstring for Constraint"""
 

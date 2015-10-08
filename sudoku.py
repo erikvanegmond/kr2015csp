@@ -9,6 +9,10 @@ digits1to9 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 digits1to9str = [str(n) for n in digits1to9]
 sudokuvars = [ i+j for i in digits1to9str for j in digits1to9str ]
 
+def rowsplit_boardstring(bs):
+    return [list(bs[i:i+9]) for i in range(0,81,9)]
+
+
 def generate_sudoku_constraints():
     # generates a list of 27 Constraints representing the rules of sudoku.
     # By modifying this function we can represent sudoku variants.
@@ -36,7 +40,7 @@ def parse_givens_to_unaries( boardstring ):
     # returns list of tuples (var,dom) representing unary constraints:
     # the domain of var is to be restricted to the singleton set dom
 
-    rows = [list(boardstring[i:i+9]) for i in range(0,81,9)]
+    rows = rowsplit_boardstring( boardstring )
 
     return [ (str(r+1)+str(c+1), {rows[r][c]}) \
              for c in range(9) for r in range(9) \
@@ -109,7 +113,8 @@ def solution_to_oneline(s):
 
 
 def print_sudoku(boardstring):
-    rows = [list(boardstring[i:i+9]) for i in range(0,81,9)]
+    print
+    rows = rowsplit_boardstring( boardstring )
     lnum = 1
     for r in rows:
     	if lnum % 4 == 0:
@@ -119,6 +124,7 @@ def print_sudoku(boardstring):
 	           r[3], r[4], r[5], u'\u2502', \
 		   r[6], r[7], r[8]
 	lnum += 1
+    print
 
 
 
