@@ -8,6 +8,7 @@ sudokuvars = [ i+j for i in digits1to9str for j in digits1to9str ]
 
 def generate_sudoku_constraints():
     # generates a list of 27 Constraints representing the rules of sudoku.
+    # By modifying this function we can represent sudoku variants.
 
     scs = []
     ns = digits1to9str
@@ -58,17 +59,29 @@ def initialize_sudoku_solver( boardstring, constraints ):
         ss.addVariable(given[0], given[1])
     return ss
 
-def solve_sudokus(fname):
-    # constraints = generate_sudoku_constraints()
+
+
+def solve_sudoku( boardstring, return_solver=False):
+    ss = initialize_sudoku_solver(boardstring, generate_sudoku_constraints())
+    ss.solve()
+    if return_solver:
+        return (boardstring, ss)
+
+
+
+def solve_sudokus_from_file(fname, return_solvers=False):
     with open(fname) as f:
         c = 0
+        solvers = list()
         for line in f.readlines():
             print c
             c+=1
-            ss = initialize_sudoku_solver(line.strip(), generate_sudoku_constraints())
-            ss.solve()
+            result = solve_sudoku(line.strip(), return_solvers)
+            if return_solvers:
+                solvers.append(result)
+        if return_solvers:
+            return solvers
 
-            # break
 
 
 
@@ -81,8 +94,14 @@ def solution_to_oneline(s):
        
 
 
-            
 
-solve_sudokus('1000-sudokus.txt')
+##=======================================
+
+
+
+# solve_sudokus_from_file('1000-sudokus.txt')
+
+
+    
 
 
