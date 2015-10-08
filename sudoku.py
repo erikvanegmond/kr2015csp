@@ -2,6 +2,8 @@ from cspsolver import *
 import pprint as pp
 import sys
 import argparse
+import time
+
 
 digits1to9 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 digits1to9str = [str(n) for n in digits1to9]
@@ -65,7 +67,6 @@ def initialize_sudoku_solver( boardstring, constraints ):
 def solve_sudoku( boardstring, return_solver=False, print_solution=False):
     ss = initialize_sudoku_solver(boardstring, generate_sudoku_constraints())
     (message, result) = ss.solve()
-    print message, result
 
     if print_solution and message == 'solved':
         line = solution_to_oneline(result.variables)
@@ -83,10 +84,16 @@ def solve_sudokus_from_file(fname, return_solvers=False, print_solutions = False
     with open(fname) as f:
         c = 0
         solvers = list()
-        for line in f.readlines():
+        lines = f.readlines()
+        sTime = time.time()
+        for line in lines:
+            tTime = time.time()
             print c
             c+=1
             result = solve_sudoku(line.strip(), return_solver = return_solvers, print_solution=print_solutions)
+            cTime = time.time()
+            print "\navg time: ", (cTime-sTime)/c
+            print "this time:", (cTime-tTime)
             if return_solvers:
                 solvers.append(result)
         if return_solvers:
