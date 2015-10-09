@@ -74,10 +74,7 @@ def solve_sudoku( boardstring, return_solver=False, print_solution=False):
 
     if print_solution and message == 'solved':
         line = solution_to_oneline(result.variables)
-        n=9
-        grid = [line[i:i+n] for i in range(0, len(line), n)]
-        for l in grid:
-            print l
+        print_sudoku(line)
 
     if return_solver:
         return (boardstring, ss)
