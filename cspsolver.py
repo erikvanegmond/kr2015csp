@@ -13,13 +13,14 @@ class Solver(object):
 
     instance = 0
 
-    def __init__(self, variables={}, constraints=[]):
+    def __init__(self, variables={}, constraints=[], propagated_variables=set()):
         self.variables = {}
         self.constraints = []
         self.variables.update(variables)
         self.constraints += constraints
         self.instance += 1
         self.variables_initial = None
+        self.propagated_variables = propagated_variables
 
     def __str__(self):
         return str(self.variables)#+"\n"+str(self.constraints)
@@ -37,8 +38,12 @@ class Solver(object):
             for constraint in self.constraints:
                 unaries = self.get_unary_values(constraint[0])
 
+                # unariesSet = set([list(x[1])[0] for x in unaries if not x[0] in self.propagated_variables])
                 unariesSet = set([list(x[1])[0] for x in unaries])
+                # unaryVars = set([x[0] for x in unaries])
+                # self.propagated_variables = self.propagated_variables.union(unaryVars)
 
+                # print self.propagated_variables
                 if unariesSet and len(unariesSet) != 9:
                     variables = [(x,self.variables[x]) for x in constraint[0]]
                     if constraint[1] == 1: #all different and has unary variables
@@ -125,8 +130,8 @@ class Solver(object):
 
         problem2[var] = vars2
 
-        solver1 = Solver(problem1, self.constraints)
-        solver2 = Solver(problem2, self.constraints)
+        solver1 = Solver(problem1, self.constraints, propagated_variables=self.propagated_variables)
+        solver2 = Solver(problem2, self.constraints, propagated_variables=self.propagated_variables)
 
         # print "|",solver1,"\n|",solver2,"\n"
         return solver1, solver2
@@ -144,7 +149,9 @@ class Solver(object):
 
     def solve(self): #remember_initial_state
         # freeze a copy of self.variables right before solving
-        self.variables_initial = deepcopy(self.variables)
+
+        ## COMMENTED OUT, I could not find it being used and it took half of the solving time!
+        # self.variables_initial = deepcopy(self.variables)
         # print "solving:",self
         # sys.stdout.write('.'),
         cont = True
@@ -198,7 +205,6 @@ class Solver(object):
             for v in newvariables:
                 self.addVariable(*v)
 
-
     def addConstraint(self, variables, relation):
         for var in variables:
             if var not in self.variables:
@@ -234,6 +240,14 @@ class Solver(object):
     def get_unary_values(self, constraint):
         unaries = []
         for var in constraint:
+            if len(self.variables[var])==1 and not var in self.propagated_variables:
+                self.propagated_variables.add(var)
+                unaries.append([var, self.variables[var]])
+        return unaries
+
+    def get_unary_variables(self, constraint):
+        unaries = []
+        for var in constraint:
             if len(self.variables[var])==1:
                 unaries.append([var, self.variables[var]])
         return unaries
@@ -259,11 +273,11 @@ class Solver(object):
         # (and self.constraints stay where they are)
         self.variables_initial = None
         # self.instance?
-    
 
 
 
-        
+
+
 class Constraint(object):
     """docstring for Constraint"""
 
