@@ -68,9 +68,9 @@ def initialize_sudoku_solver( boardstring, constraints ):
 
 
 
-def solve_sudoku( boardstring, return_solver=False, print_solution=False):
+def solve_sudoku( boardstring, return_solver=False, print_solution=False, var_heur=0, val_heur=0):
     ss = initialize_sudoku_solver(boardstring, generate_sudoku_constraints())
-    (message, result) = ss.solve()
+    (message, result) = ss.solve(var_heur, val_heur)
 
     if print_solution and message == 'solved':
         line = solution_to_oneline(result.variables)
@@ -81,7 +81,7 @@ def solve_sudoku( boardstring, return_solver=False, print_solution=False):
 
 
 
-def solve_sudokus_from_file(fname, return_solvers=False, print_solutions = False):
+def solve_sudokus_from_file(fname, return_solvers=False, print_solutions = False, var_heur=0, val_heur=0):
     with open(fname) as f:
         c = 0
         solvers = list()
@@ -89,14 +89,15 @@ def solve_sudokus_from_file(fname, return_solvers=False, print_solutions = False
         sTime = time.time()
         for line in lines:
             tTime = time.time()
-            print c
+
             c+=1
-            result = solve_sudoku(line.strip(), return_solver = return_solvers, print_solution=print_solutions)
+            result = solve_sudoku(line.strip(), return_solver = return_solvers, print_solution=print_solutions, var_heur=var_heur, val_heur=val_heur)
             cTime = time.time()
-            print "\navg time: ", (cTime-sTime)/c
+            print "\n",c,"\navg time: ", (cTime-sTime)/c
             print "this time:", (cTime-tTime)
             if return_solvers:
                 solvers.append(result)
+        print "\navg time: ", (cTime-sTime)/c
         if return_solvers:
             return solvers
 
@@ -138,11 +139,16 @@ if __name__ == '__main__':
             help='Retrun the solvers')
     parser.add_argument('--printSolutions', action="store_true", default=False,
             help="Print the solution of each sudoku")
+    parser.add_argument('--val_heur', type=int, choices = [0,1,2,3], default=0,
+            help="value heuristic:: 0:random, 1:first value in list, 2:most limiting value, 3:least limiting value")
+    parser.add_argument('--var_heur', type=int, choices = [0,1,2], default=0,
+            help="variable heuristic:: 0:random, 1:first variable in list, 2:smallest domain first")
+
 
     args = parser.parse_args()
     argdict = vars(args) # converts namespace with all arguments to a dictionary
 
-    solve_sudokus_from_file(argdict['input'], return_solvers = argdict['retSolvers'], print_solutions = argdict['printSolutions'])
+    solve_sudokus_from_file(argdict['input'], return_solvers = argdict['retSolvers'], print_solutions = argdict['printSolutions'], var_heur=argdict['var_heur'], val_heur=argdict['val_heur'])
 
 
 

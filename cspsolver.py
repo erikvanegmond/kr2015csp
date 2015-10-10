@@ -91,6 +91,8 @@ class Solver(object):
                         return var
             # print smallestLen, self.variables[smallest]
             return smallest
+        else:
+            exit()
 
     def pick_value(self, var, heuristic=0):
         if heuristic==0:#random
@@ -118,9 +120,9 @@ class Solver(object):
         else:
             exit()
 
-    def split(self):
-        var = self.pick_variable(heuristic=2)
-        value = self.pick_value(var, heuristic=3)
+    def split(self, var_heur=0, val_heur=0):
+        var = self.pick_variable(heuristic=var_heur)
+        value = self.pick_value(var, heuristic=val_heur)
         vars1 = set([value])
         vars2 = self.variables[var] - set([value])
 
@@ -147,7 +149,7 @@ class Solver(object):
                 return True
         return False
 
-    def solve(self): #remember_initial_state
+    def solve(self, var_heur=0, val_heur=0): #remember_initial_state
         # freeze a copy of self.variables right before solving
 
         ## COMMENTED OUT, I could not find it being used and it took half of the solving time!
@@ -165,17 +167,17 @@ class Solver(object):
                 if self.atomic():
                     cont = False
                 else:
-                    newSolver1, newSolver2 = self.split()
+                    newSolver1, newSolver2 = self.split(var_heur, val_heur)
                     if newSolver1.solved():
                         self = newSolver1
                         return ("solved", self)
                     elif newSolver2.solved():
                         self = newSolver2
                         return ("solved", self)
-                    (message, result) = newSolver1.solve()
+                    (message, result) = newSolver1.solve(var_heur, val_heur)
 
                     if message == "unsolvable":
-                        (message, result) = newSolver2.solve()
+                        (message, result) = newSolver2.solve(var_heur, val_heur)
                         if message == "unsolvable":
                             return (message, result)
                     if message == "solved":
