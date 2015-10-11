@@ -26,8 +26,7 @@ class Solver(object):
         return str(self.variables)#+"\n"+str(self.constraints)
 
     def preprocess(self):
-        # print "preprocessing..."
-        return None
+        self.constraint_propagation()
 
     def constraint_propagation(self):
         # print "propagating..."
@@ -160,7 +159,6 @@ class Solver(object):
         solved = self.solved()
         while cont and not solved:
             self.preprocess()
-            self.constraint_propagation()
             solved = self.solved()
 
             if not solved:
