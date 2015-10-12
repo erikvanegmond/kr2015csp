@@ -133,10 +133,10 @@ def print_sudoku(boardstring):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='sudoku.py', description="solve sudokus using csp")
 
-    parser.add_argument('--input', type=str, default = '1000-sudokus.txt',
+    parser.add_argument('-i', '--input', type=str, default = '1000-sudokus.txt',
             help='A text file containing sudokus in oneline format')
     parser.add_argument('--retSolvers', action="store_true", default = False,
-            help='Retrun the solvers')
+            help='Return the solvers')
     parser.add_argument('--printSolutions', action="store_true", default=False,
             help="Print the solution of each sudoku")
     parser.add_argument('--val_heur', type=int, choices = [0,1,2,3], default=0,
